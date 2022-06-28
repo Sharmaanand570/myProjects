@@ -7,6 +7,6 @@ router.post("/functionup/colleges", collegeController)
 
 router.post("/functionup/interns", internController)
 
-router.get("/functionup/collegeDetails", internController)
+router.get("/functionup/collegeDetails", internController.getCollegeData)
 
 module.exports = router;
