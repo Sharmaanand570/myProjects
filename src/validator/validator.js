@@ -1,11 +1,44 @@
 const isValid = function (value) {
-    if (typeof value === "undefined" || value === null) return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
-    return true;
-  };
-  
-//   function isValidUrl(x){
-//     const regEx = /((http|https)://)(www.)?” + “[a-zA-Z0-9@:%._\\+~#?&//=]{2,256}\\.[a-z]” + “{2,6}\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)/  
-//     const result = regEx.test(x)
-//     return result;
-// }
+  if (typeof value === "undefined" || value === null) return false;
+  if (typeof value === "string" && value.trim().length === 0) return false;
+  return true;
+};
+
+const isValidUrl = function (value) {
+  const regEx = /^\s*(ftp|http|https?):\/\/+(www\.)?[a-zA-Z0-9\-\.]{3,}\.[a-zA-Z]{3}.*[\/\s\w]*$/
+  const result = regEx.test(value)
+  return result;
+}
+
+const isValidCharacterLimit2to8 = function (value) {
+  const regEx = /^\s*([a-zA-Z]){2,8}\s*$/
+  const result = regEx.test(value)
+  return result;
+}
+
+const isValidCharacterLimit2to100 = function (value) {
+  const regEx = /^\s*([a-zA-Z\s\,]){2,100}\s*$/
+  const result = regEx.test(value)
+  return result;
+}
+
+const isValidNumber = function(value){
+  const regEx =/^\s*([0-9]){10}\s*$/
+  const result = regEx.test(value)
+  return result;
+}
+
+const isValidEmail = (value) => {
+  if (typeof value === "undefined" || value === null) return false
+  const regEx= /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  return regEx.test(value)
+}
+
+module.exports.isValid = isValid
+module.exports.isValidUrl = isValidUrl
+module.exports.isValidCharacterLimit2to8 = isValidCharacterLimit2to8
+module.exports.isValidCharacterLimit2to100 = isValidCharacterLimit2to100
+module.exports.isValidNumber = isValidNumber
+module.exports.isValidEmail = isValidEmail
+
+
