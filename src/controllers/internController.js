@@ -16,23 +16,23 @@ const createInterns = async function (req, res) {
                 if (!(validator.isValidEmail(email) && validator.isValid(email))) {
                     return res.status(400).send({ status: false, message: "please provide your valid email, e.g: example@example.example" })
                 }
-                const checkEmail = await internModel.findOne({ email: email })
+                const checkEmail = await internModel.findOne({ email: email.trim() })
                 if (checkEmail) {
-                    return res.status(400).send({ status: false, message: `This email: ${email} already in use` })
+                    return res.status(400).send({ status: false, message: `This email: ${email.trim()} already in use` })
                 }
                 if (!(validator.isValidNumber(mobile) && validator.isValid(mobile))) {
                     return res.status(400).send({ status: false, message: "please provide your valid Number, size should be of 10 , e.g: 1234567890 " })
                 }
-                const checkMobile = await internModel.findOne({ mobile: mobile })
+                const checkMobile = await internModel.findOne({ mobile: mobile.trim() })
                 if (checkMobile) {
-                    return res.status(400).send({ status: false, message: `This number: ${number} already in use` })
+                    return res.status(400).send({ status: false, message: `This number: ${mobile.trim()} already in use` })
                 }
                 if (!(validator.isValidCharacterLimit2to8(collegeName) && validator.isValid(collegeName))) {
                     return res.status(400).send({ status: false, message: "please provide your valid collegeName, e.g: iit" })
                 }
-                const checkCollege = await collegeModel.findOne({ name: collegeName })
+                const checkCollege = await collegeModel.findOne({ name: collegeName.trim() })
                 if (checkCollege) {
-                    const createIntern = await internModel.create({ name: name, email: email, mobile: mobile, collegeId: checkCollege._id })
+                    const createIntern = await internModel.create({ name: name.trim(), email: email.trim(), mobile: mobile.trim(), collegeId: checkCollege._id })
                     res.status(201).send({ status: true, data: createIntern })
                 }
                 else {

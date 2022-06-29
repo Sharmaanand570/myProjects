@@ -9,5 +9,4 @@ router.post("/functionup/interns", internController.createInterns)
 
 router.get("/functionup/collegeDetails", collegeController.getCollegeData)
 
-
 module.exports = router;
