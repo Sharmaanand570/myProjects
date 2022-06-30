@@ -2,6 +2,11 @@ const collegeModel = require("../models/collegeModel.js");
 const internModel = require("../models/internModel.js");
 const validator = require("../validator/validator.js");
 
+
+
+//=========================================== 1-Create college Api ===============================================//
+
+
 const createCollege = async function (req, res) {
     try {
         const { name, fullName, logoLink } = req.body;
@@ -23,41 +28,41 @@ const createCollege = async function (req, res) {
                 return res.status(400).send({ status: false, message: "please provide a valid link e.g: https://www.example.com or https://example.com " })
             }
             const savedData = await collegeModel.create({name:name.trim().toUpperCase(), fullName:fullName.trim().toUpperCase(), logoLink:logoLink.trim().toLowerCase() });
-            res.status(201).send({ status: true, data: savedData })
+            return res.status(201).send({ status: true, data: savedData })
         }
         else {
-            res.status(400).send({ status: false, message: "Invalid data, please provide college name,fullName and logoLink" })
+            return res.status(400).send({ status: false, message: "Invalid data, please provide college name,fullName and logoLink" })
         }
     } catch (error) {
-        res.status(500).send({ status: false, message: error.message });
+        return res.status(500).send({ status: false, message: error.message });
     }
 }
+
+//========================================= 1-Get college data Api ==============================================//
 
 const getCollegeData = async function (req, res) {
     try {
         const collegeName = req.query.collegeName
         if (collegeName) {
-            const collegeData = await collegeModel.findOne({ $or:[{name: collegeName.trim().toUpperCase()},{fullName:collegeName.trim().toUpperCase()}]})
+            const collegeData = await collegeModel.findOne({ $or:[{name: collegeName.trim().toUpperCase(), isDeleted:false},{fullName:collegeName.trim().toUpperCase(), isDeleted:false}]})
             if (!collegeData) {
-                return res.status(404).send({ status: false, message: `college name ${collegeName} not found`})
+                return res.status(404).send({ status: false, message: `college name ${collegeName} is not found`})
             }
-            let internData = await internModel.find({ collegeId: collegeData._id }).select({ _id: 1, name: 1, email: 1, mobile: 1 })
+            let internData = await internModel.find({ collegeId: collegeData._id, isDeleted:false }).select({ _id: 1, name: 1, email: 1, mobile: 1 })
             if (Object.keys(internData).length == 0) {
-                internData = "No Intern Applied"
+                internData = "No any Intern had Applied"
             }
             const collegeDetail = { name: collegeData.name, fullName: collegeData.fullName, logoLink: collegeData.logoLink, interns: internData }
-            res.status(200).send({ status: true, data: collegeDetail })
+            return res.status(200).send({ status: true, data: collegeDetail })
         }
         else {
-            res.status(400).send({ status: false, message: "please enter valid data" })
+           return res.status(400).send({ status: false, message: "please enter valid data" })
         }
     }
     catch (error) {
-        res.status(500).send({ status: false, message: error.message })
+        return res.status(500).send({ status: false, message: error.message })
     }
 }
 
 module.exports.createCollege = createCollege
 module.exports.getCollegeData = getCollegeData
-
-
