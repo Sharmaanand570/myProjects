@@ -33,8 +33,6 @@ const createCollege = async function (req, res) {
     }
 }
 
-
-
 const getCollegeData = async function (req, res) {
     try {
         const collegeName = req.query.collegeName
