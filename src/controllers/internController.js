@@ -2,10 +2,7 @@ const internModel = require("../models/internModel")
 const collegeModel = require("../models/collegeModel")
 const validator = require("../validator/validator")
 
-
-
 //========================================= 1-Create interns Api ================================================//
-
 
 const createInterns = async function (req, res) {
     try {
@@ -26,9 +23,9 @@ const createInterns = async function (req, res) {
                     return res.status(400).send({ status: false, message: `This email: ${email.trim()} is already in used for intern`})
                 }
                 if (!(validator.isValidNumber(mobile) && validator.isValid(mobile))) {
-                    return res.status(400).send({ status: false, message: "please provide your valid Number, size should be of 10 , e.g: 1234567890 " })
+                    return res.status(400).send({ status: false, message: "please provide your valid Number, size should be of 10 , e.g: +91 1234567890 " })
                 }
-                const checkMobile = await internModel.findOne({ mobile: mobile.trim() })
+                const checkMobile = await internModel.findOne({ mobile: mobile.trim()})
                 if (checkMobile) {
                     return res.status(400).send({ status: false, message: `This number: ${mobile.trim()} is already in used for intern` })
                 }
@@ -45,7 +42,7 @@ const createInterns = async function (req, res) {
                 }
             }
             else {
-                return res.status(400).send({ status: false, message: "please enter valid data" })
+                return res.status(400).send({ status: false, message: "please enter name, email, mobile and collegeName" })
             }
         }
     }
