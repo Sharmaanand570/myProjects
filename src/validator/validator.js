@@ -23,7 +23,7 @@ const isValidCharacterLimit2to100 = function (value) {
 }
 
 const isValidNumber = function (value) {
-  const regEx = /^\s*\+91\s([0-9]){10}\s*$/
+  const regEx = /^\s*\91([0-9]){10}\s*$/
   const result = regEx.test(value)
   return result
 }

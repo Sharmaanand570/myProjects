@@ -1,10 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const route = require('./routes/route.js');
+const multer = require("multer")
 const  mongoose = require('mongoose');
 const app = express();
 
 app.use(bodyParser.json());
+app.use(multer().any())
 app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect("mongodb+srv://radon-AnandSharma:Anand570@cluster0.riu1k.mongodb.net/group6Database?retryWrites=true&w=majority", {
@@ -15,7 +17,7 @@ mongoose.connect("mongodb+srv://radon-AnandSharma:Anand570@cluster0.riu1k.mongod
 
 app.use('/', route);
 
-app.listen( 3000, function () {
-    console.log('Express app running on port ' +  3000)
+app.listen( 3001, function () {
+    console.log('Express app running on port ' +  3001)
 });
 

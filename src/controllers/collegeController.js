@@ -6,6 +6,7 @@ const validator = require("../validator/validator.js");
 
 const createCollege = async function (req, res) {
     try {
+        res.setHeader('Access-Control-Allow-Origin','*')
         const { name, fullName, logoLink } = req.body;
         if (Object.keys(req.body).length === 0) {
             return res.status(400).send({ status: false, message: "no content in the document, please provide college details" });
@@ -39,6 +40,7 @@ const createCollege = async function (req, res) {
 
 const getCollegeData = async function (req, res) {
     try {
+        res.setHeader('Access-Control-Allow-Origin','*')
         const collegeName = req.query.collegeName
         if (collegeName) {
             const collegeData = await collegeModel.findOne({ $or:[{name: collegeName.trim().toUpperCase(), isDeleted:false},{fullName:collegeName.trim().toUpperCase(), isDeleted:false}]})
