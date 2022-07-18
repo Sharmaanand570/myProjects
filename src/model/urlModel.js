@@ -7,10 +7,11 @@ const urlSchema= new mongoose.Schema({
         unique:true, 
         lowercase:true, 
         trim:true 
-    }, 
+    },
     longUrl: {
         type:String,
-        required:true 
+        required:true,
+        lowercase:true
         }, 
     shortUrl: {
         type:String,
