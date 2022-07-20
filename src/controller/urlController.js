@@ -1,7 +1,31 @@
 const urlModel = require('../model/urlModel')
 const validURL = require('valid-url')
 const ShortUniqueId = require('short-unique-id')
+const redis = require("redis")
 
+const promisify = require("util");
+
+//Connect to redis
+const redisClient = redis.createClient(
+    14986,
+    "redis-14986.c264.ap-south-1-1.ec2.cloud.redislabs.com",
+    { no_ready_check: true }
+);
+redisClient.auth("Ixru7pOya8dSrkuZIHi1yu1Iv2Aw2Esb", function (err) {
+    if (err) throw err;
+});
+
+redisClient.on("connect", async function () {
+    console.log("Connected to Redis..");
+});
+
+//1. connect to the server
+//2. use the commands :
+
+//Connection setup for redis
+
+const SET_ASYNC = promisify.promisify(redisClient.SET).bind(redisClient);
+const GET_ASYNC = promisify.promisify(redisClient.GET).bind(redisClient);
 
 const createShortenURL = async function (req, res) {
     try {
@@ -21,7 +45,7 @@ const createShortenURL = async function (req, res) {
         if (Object.keys(req.body).length > 1) {
             return res.status(400).send({ status: false, message: "you aren't allowed to provide another key except 'longUrl'" })
         }
-        if (validURL.isUri(longUrl)) {
+        if (validURL.isUri(longUrl.toString())) {
             const findUrl = await urlModel.findOne({ longUrl }).select({ longUrl: 1, shortUrl: 1, urlCode: 1, _id: 0 })
             if (findUrl) {
                 return res.status(200).send({ status: true, data: findUrl })
@@ -44,18 +68,23 @@ const createShortenURL = async function (req, res) {
     }
 }
 
-
-
 const getUrlByUrlCode = async function (req, res) {
     try {
         const urlCode = req.params.urlCode
-        const findUrlCode = await urlModel.findOne({ urlCode })
-
-        if (findUrlCode) {
-            const findUrl = findUrlCode.longUrl
-            return res.status(302).redirect(findUrl)
-        } else {
-            return res.status(404).send({ status: false, message: "no url found" })
+        const cachedUrlData = await GET_ASYNC(`${urlCode}`)
+        if (cachedUrlData) {
+            // const findUrl = (JSON.parse(cachedUrlData)).longUrl
+            return res.status(302).redirect(cachedUrlData)
+        }
+        else {
+            const findUrlCode = await urlModel.findOne({ urlCode }).select({longUrl:1,_id:0})
+            if (findUrlCode) {
+                await SET_ASYNC(`${urlCode}`, findUrlCode.longUrl)
+                const findUrl = findUrlCode.longUrl
+                return res.status(302).redirect(findUrl)
+            } else {
+                return res.status(404).send({ status: false, message: "no url found" })
+            }
         }
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message, errorName: error.name })
