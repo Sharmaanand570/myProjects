@@ -3,7 +3,7 @@ const validURL = require('valid-url')
 const ShortUniqueId = require('short-unique-id')
 const redis = require("redis")
 
-const promisify = require("util");
+const { promisify } = require("util");
 
 //Connect to redis
 const redisClient = redis.createClient(
@@ -24,8 +24,13 @@ redisClient.on("connect", async function () {
 
 //Connection setup for redis
 
-const SET_ASYNC = promisify.promisify(redisClient.SET).bind(redisClient);
-const GET_ASYNC = promisify.promisify(redisClient.GET).bind(redisClient);
+const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
+const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
+
+
+
+//=========================================== 1-Create Short URL Api =============================================//
+
 
 const createShortenURL = async function (req, res) {
     try {
@@ -46,9 +51,9 @@ const createShortenURL = async function (req, res) {
             return res.status(400).send({ status: false, message: "you aren't allowed to provide another key except 'longUrl'" })
         }
         if (validURL.isUri(longUrl.toString())) {
-            const findUrl = await urlModel.findOne({ longUrl }).select({ longUrl: 1, shortUrl: 1, urlCode: 1, _id: 0 })
-            if (findUrl) {
-                return res.status(200).send({ status: true, data: findUrl })
+            const cachedUrlData = await GET_ASYNC(`${longUrl}`)
+            if (cachedUrlData) {
+                return res.status(200).send({ status: true, message:"data coming from redish(cache)", data:JSON.parse(cachedUrlData) })
             }
             const shortURLId = new ShortUniqueId().stamp(10)
             const shortenUrl = baseUrl + shortURLId
@@ -58,6 +63,7 @@ const createShortenURL = async function (req, res) {
                 longUrl: createUrl.longUrl,
                 shortUrl: createUrl.shortUrl
             }
+            await SET_ASYNC(`${longUrl}`, JSON.stringify(data))
             return res.status(201).send({ status: true, data })
         } else {
             return res.status(400).send({ status: false, message: "invalid URL" })
@@ -68,20 +74,23 @@ const createShortenURL = async function (req, res) {
     }
 }
 
+
+
+//=========================================== 2-Get URL Api =============================================//
+
+
 const getUrlByUrlCode = async function (req, res) {
     try {
         const urlCode = req.params.urlCode
         const cachedUrlData = await GET_ASYNC(`${urlCode}`)
         if (cachedUrlData) {
-            // const findUrl = (JSON.parse(cachedUrlData)).longUrl
             return res.status(302).redirect(cachedUrlData)
         }
         else {
-            const findUrlCode = await urlModel.findOne({ urlCode }).select({longUrl:1,_id:0})
+            const findUrlCode = await urlModel.findOne({ urlCode }).select({ longUrl: 1, _id: 0 })
             if (findUrlCode) {
                 await SET_ASYNC(`${urlCode}`, findUrlCode.longUrl)
-                const findUrl = findUrlCode.longUrl
-                return res.status(302).redirect(findUrl)
+                return res.status(302).redirect(findUrlCode.longUrl)
             } else {
                 return res.status(404).send({ status: false, message: "no url found" })
             }
