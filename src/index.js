@@ -4,7 +4,7 @@ const route = require('./routes/route.js');
 const mongoose = require('mongoose');
 const app = express();
 
-app.use(bodyParser.json()); 
+app.use(bodyParser.json());
 
 
 mongoose.connect("mongodb+srv://radon-AnandSharma:Anand570@cluster0.riu1k.mongodb.net/group54Database?retryWrites=true&w=majority", {

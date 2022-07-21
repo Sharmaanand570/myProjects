@@ -53,7 +53,7 @@ const createShortenURL = async function (req, res) {
         if (validURL.isUri(longUrl.toString())) {
             const cachedUrlData = await GET_ASYNC(`${longUrl}`)
             if (cachedUrlData) {
-                return res.status(200).send({ status: true, message:"data coming from redish(cache)", data:JSON.parse(cachedUrlData) })
+                return res.status(200).send({ status: true, message: "data coming from redish(cache)", data: JSON.parse(cachedUrlData) })
             }
             const shortURLId = new ShortUniqueId().stamp(10)
             const shortenUrl = baseUrl + shortURLId
