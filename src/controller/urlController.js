@@ -49,7 +49,7 @@ const createShortenURL = async function (req, res) {
         if (Object.keys(req.body).length > 1) {
             return res.status(400).send({ status: false, message: "you aren't allowed to provide another key except 'longUrl'" })
         }
-        if (validURL.isUri(longUrl.toString())) {
+        if (validURL.isWebUri(longUrl.toString())) {
             let cachedUrlData = await GET_ASYNC(`${longUrl}`)
             if (cachedUrlData) {
                 return res.status(200).send({ status: true, message: "data coming from cache", data: JSON.parse(cachedUrlData) })
@@ -69,6 +69,7 @@ const createShortenURL = async function (req, res) {
                         longUrl: createUrl.longUrl,
                         shortUrl: createUrl.shortUrl
                     }
+                    await SET_ASYNC(`${longUrl}`, JSON.stringify(data))
                     return res.status(201).send({ status: true, data })
                 }
             }
