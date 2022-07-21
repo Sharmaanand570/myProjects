@@ -14,7 +14,6 @@ const redisClient = redis.createClient(
 redisClient.auth("Ixru7pOya8dSrkuZIHi1yu1Iv2Aw2Esb", function (err) {
     if (err) throw err;
 });
-
 redisClient.on("connect", async function () {
     console.log("Connected to Redis..");
 });
@@ -51,20 +50,28 @@ const createShortenURL = async function (req, res) {
             return res.status(400).send({ status: false, message: "you aren't allowed to provide another key except 'longUrl'" })
         }
         if (validURL.isUri(longUrl.toString())) {
-            const cachedUrlData = await GET_ASYNC(`${longUrl}`)
+            let cachedUrlData = await GET_ASYNC(`${longUrl}`)
             if (cachedUrlData) {
-                return res.status(200).send({ status: true, message: "data coming from redish(cache)", data: JSON.parse(cachedUrlData) })
+                return res.status(200).send({ status: true, message: "data coming from cache", data: JSON.parse(cachedUrlData) })
             }
-            const shortURLId = new ShortUniqueId().stamp(10)
-            const shortenUrl = baseUrl + shortURLId
-            const createUrl = await urlModel.create({ longUrl, shortUrl: shortenUrl, urlCode: shortURLId })
-            const data = {
-                urlCode: createUrl.urlCode,
-                longUrl: createUrl.longUrl,
-                shortUrl: createUrl.shortUrl
+            else {
+                const findUrl = await urlModel.findOne({ longUrl }).select({ longUrl: 1, shortUrl: 1, urlCode: 1, _id: 0 })
+                if (findUrl) {
+                    await SET_ASYNC(`${longUrl}`, JSON.stringify(findUrl))
+                    return res.status(200).send({ status: true, message: "first time data coming from db", data: findUrl })
+                }
+                else {
+                    const shortURLId = new ShortUniqueId().stamp(10)
+                    const shortenUrl = baseUrl + shortURLId
+                    const createUrl = await urlModel.create({ longUrl, shortUrl: shortenUrl, urlCode: shortURLId })
+                    const data = {
+                        urlCode: createUrl.urlCode,
+                        longUrl: createUrl.longUrl,
+                        shortUrl: createUrl.shortUrl
+                    }
+                    return res.status(201).send({ status: true, data })
+                }
             }
-            await SET_ASYNC(`${longUrl}`, JSON.stringify(data))
-            return res.status(201).send({ status: true, data })
         } else {
             return res.status(400).send({ status: false, message: "invalid URL" })
         }
