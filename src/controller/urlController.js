@@ -50,14 +50,14 @@ const createShortenURL = async function (req, res) {
             return res.status(400).send({ status: false, message: "you aren't allowed to provide another key except 'longUrl'" })
         }
         if (validURL.isUri(longUrl.toString())) {
-            let cachedUrlData = await GET_ASYNC(`${longUrl}`)
+            let cachedUrlData = await GET_ASYNC(`${longUrl}`, "EX", 2 * 60)
             if (cachedUrlData) {
                 return res.status(200).send({ status: true, data: JSON.parse(cachedUrlData) })
             }
             else {
                 const findUrl = await urlModel.findOne({ longUrl }).select({ longUrl: 1, shortUrl: 1, urlCode: 1, _id: 0 })
                 if (findUrl) {
-                    await SET_ASYNC(`${longUrl}`, JSON.stringify(findUrl))
+                    await SET_ASYNC(`${longUrl}`, JSON.stringify(findUrl), "EX", 2 * 60)
                     return res.status(200).send({ status: true, data: findUrl })
                 }
                 else {
@@ -97,7 +97,7 @@ const getUrlByUrlCode = async function (req, res) {
         else {
             const findUrlCode = await urlModel.findOne({ urlCode }).select({ longUrl: 1, _id: 0 })
             if (findUrlCode) {
-                await SET_ASYNC(`${urlCode}`, findUrlCode.longUrl)
+                await SET_ASYNC(`${urlCode}`, findUrlCode.longUrl, "EX", 2 * 60)
                 return res.status(302).redirect(findUrlCode.longUrl)
             } else {
                 return res.status(404).send({ status: false, message: "no url found" })
