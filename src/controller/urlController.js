@@ -69,7 +69,7 @@ const createShortenURL = async function (req, res) {
                         longUrl: createUrl.longUrl,
                         shortUrl: createUrl.shortUrl
                     }
-                    await SET_ASYNC(`${longUrl}`, JSON.stringify(data))
+                    await SET_ASYNC(`${longUrl}`, JSON.stringify(data), "EX", 60 * 2)
                     return res.status(201).send({ status: true, data })
                 }
             }
