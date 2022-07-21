@@ -3,7 +3,7 @@ const validURL = require('valid-url')
 const ShortUniqueId = require('short-unique-id')
 const redis = require("redis")
 
-const {promisify} = require("util");
+const { promisify } = require("util");
 
 //Connect to redis
 const redisClient = redis.createClient(
@@ -25,6 +25,11 @@ redisClient.on("connect", async function () {
 
 const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
 const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
+
+
+
+//=========================================== 1-Create Short URL Api =============================================//
+
 
 const createShortenURL = async function (req, res) {
     try {
@@ -77,6 +82,11 @@ const createShortenURL = async function (req, res) {
     }
 }
 
+
+
+//=========================================== 2-Get URL Api =============================================//
+
+
 const getUrlByUrlCode = async function (req, res) {
     try {
         const urlCode = req.params.urlCode
@@ -88,8 +98,7 @@ const getUrlByUrlCode = async function (req, res) {
             const findUrlCode = await urlModel.findOne({ urlCode }).select({ longUrl: 1, _id: 0 })
             if (findUrlCode) {
                 await SET_ASYNC(`${urlCode}`, findUrlCode.longUrl)
-                const findUrl = findUrlCode.longUrl
-                return res.status(302).redirect(findUrl)
+                return res.status(302).redirect(findUrlCode.longUrl)
             } else {
                 return res.status(404).send({ status: false, message: "no url found" })
             }
