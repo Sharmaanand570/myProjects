@@ -81,4 +81,5 @@ const isValueWithoutSpaces = function(value) {
    let finalValue= value.trim().split(' ').filter(word=>word).join('')
    return finalValue
 }
+
 module.exports = { isValidName, isValidEmail, isValidPassword, isValid, isValidDecimalNumber, isValidPhone, isValidPincode, isValidImage, isValidObjectId, isValidSize, isValidOrderStatus, isValueWithoutSpaces }
