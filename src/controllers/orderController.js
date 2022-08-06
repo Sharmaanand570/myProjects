@@ -97,7 +97,7 @@ const updateOrder = async function (req, res) {
             return
         }
 
-        if(!validator.isValid(status)){
+        if (!validator.isValid(status)) {
             res.status(400).send({ status: false, message: 'Please provide order status to update' })
             return
         }
@@ -114,15 +114,21 @@ const updateOrder = async function (req, res) {
             return
         }
 
-        if(isOrderExist.status == 'canceled'){
+        if (isOrderExist.status == 'canceled') {
             res.status(400).send({ status: false, message: 'This order is already cancelled' })
             return
         }
 
-        if(isOrderExist.status == 'completed'){
+        if (isOrderExist.status == 'completed' && status == 'pending') {
             res.status(400).send({ status: false, message: 'This order is completed' })
             return
         }
+
+        if (isOrderExist.status == 'pending' && status == 'pending') {
+            res.status(400).send({ status: false, message: 'This order is already pending' })
+            return
+        }
+
         if (status == 'canceled') {
             if (isOrderExist.cancellable == false) {
                 res.status(400).send({ status: false, message: 'This order is not cancellable' })
