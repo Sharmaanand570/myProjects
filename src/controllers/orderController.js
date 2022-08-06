@@ -51,7 +51,7 @@ const createOrder = async function (req, res) {
             }
             const order = await orderModel.create(orderDetail)
             await cartModel.findByIdAndUpdate(cartId, { items: [], totalPrice: 0, totalItems: 0 })
-            res.status(201).send({ status: true, message: "success", data: order })
+            res.status(201).send({ status: true, message: "Success", data: order })
         }
         else {
             return res.status(403).send({ status: false, message: 'You are not authorized to order' })
@@ -114,8 +114,8 @@ const updateOrder = async function (req, res) {
             return
         }
 
-        if (isOrderExist.status == 'canceled') {
-            res.status(400).send({ status: false, message: 'This order is already cancelled' })
+        if(isOrderExist.status == 'canceled'){
+            res.status(400).send({ status: false, message: 'This order is already canceled' })
             return
         }
 
